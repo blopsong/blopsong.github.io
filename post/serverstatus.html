@@ -1,0 +1,100 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Serverstatus&#8217; date = 2024-02-21T18:39:50+08:00 draft = false +++</p>
+
+<h3 id='build_a_server_monitor'>Build a server monitor</h3>
+
+<h5 id='source'>Source</h5>
+
+<p>Project: <a href='https://github.com/cppla/ServerStatus'>serverstatus by cppla</a></p>
+
+<p>I personally mainly referenced this blog <a href='https://blog.tanglu.me/server-status/'>post</a></p>
+
+<h5 id='server'>Server</h5>
+
+<p>Install <strong>docker</strong> and <strong>docker compose</strong></p>
+
+<pre><code class="language-bash">curl -fsSL https://get.docker.com -o get-docker.sh &amp;&amp; sh ./get-docker.sh</code></pre>
+
+<p>Check if <strong>docker</strong> successfully installeddocker compose version</p>
+
+<pre><code class="language-bash">docker -v
+# Some like &#8217;Docker version 23.0.2, build 569dd73&#8217;
+docker compose version
+# Some like &#8217;Docker Compose version v2.17.2&#8217;</code></pre>
+
+<p>Download two configuration files: <code>serverstatus-config.json</code> and <code>serverstatus-monthtraffic</code> . Modify them according to your situation.</p>
+
+<pre><code class="language-bash">wget --no-check-certificate -qO ~/serverstatus-config.json https://raw.githubusercontent.com/cppla/ServerStatus/master/server/config.json &amp;&amp; mkdir ~/serverstatus-monthtraffic</code></pre>
+
+<p>Run the docker container</p>
+
+<pre><code class="language-bash"># For the &#8217;port_1:port_2&#8217;, the left one is of the host machine and the right one is of the container
+docker run -d --restart=always --name=serverstatus -v ~/serverstatus-config.json:/ServerStatus/server/config.json -v ~/serverstatus-monthtraffic:/usr/share/nginx/html/json -p 80:80 -p 35601:35601 cppla/serverstatus:latest</code></pre>
+
+<p>Now you can have a look on the frontend page by visit <code>http://localhost:port</code></p>
+
+<h6 id='use_nginx_as_reverse_proxy'>Use nginx as reverse proxy</h6>
+
+<p>Edit <code>/etc/nginx/sites-available/default</code></p>
+
+<pre><code>location /status {
+                proxy_redirect off;
+                proxy_pass http://127.0.0.1:8080/; # don&#8217;t forget the &#8217;/&#8217; in the end
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+        }</code></pre>
+
+<p>Reload nginx configuration</p>
+
+<pre><code class="language-bash">systemctl reload nginx</code></pre>
+
+<p>Now you could visit it through <code>ip/status/</code> or <code>domainName/status/</code></p>
+
+<h5 id='client'>Client</h5>
+
+<p>Install the agent file <code>client-linux.py</code></p>
+
+<pre><code class="language-bash">wget --no-check-certificate -qO client-linux.py &#8217;https://raw.githubusercontent.com/cppla/ServerStatus/master/clients/client-linux.py&#8217;</code></pre>
+
+<p>Modify it according to your needs:</p>
+
+<pre><code class="language-python">SERVER = &quot;1.1.1.1&quot;    # IP of server
+USER = &quot;s01&quot;            # username, corresponding to the username of server side
+
+
+PASSWORD = &quot;USER_DEFAULT_PASSWORD&quot;        # password, corresponding to the password of server side
+PORT = 45601                            # client port
+CU = &quot;mall.10010.com&quot;                    # recommanded tcping address
+CT = &quot;www.189.cn&quot;                        # recommanded tcping address
+CM = &quot;www.bj.10086.cn&quot;                    # recommanded tcping address
+PROBEPORT = 80                            #
+PROBE_PROTOCOL_PREFER = &quot;ipv4&quot;  # ipv4, ipv6 preference when ping cu ct cm
+PING_PACKET_HISTORY_LEN = 100            
+INTERVAL = 1      </code></pre>
+
+<p>Install <strong>python3</strong></p>
+
+<pre><code class="language-bash"># check if python3 installed
+python3 --version
+# if not, install it
+apt install python3</code></pre>
+
+<p>Make it a <strong>daemon</strong></p>
+
+<pre><code># Add a daemon /etc/systemd/system/tzstatus.service
+# replace&#8217;ExecStart&#8217; with your needed command
+
+#vi /etc/systemd/system/tzstatus.service
+
+[Unit]
+Description=serverstatus
+After=network.target
+
+[Service]
+ExecStart=python3 /root/client-linux.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target</code></pre>

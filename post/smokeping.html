@@ -1,0 +1,104 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Smokeping&#8217; date = 2024-03-01T16:04:57+08:00 draft = false +++</p>
+
+<h3 id='source'>Source</h3>
+
+<p><a href='https://blog.captainz.cc/posts/smokeping_install.html'>zzz&#8217;s blog</a></p>
+
+<h3 id='start'>Start</h3>
+
+<h6 id='install_docker_and_enable_it.'>Install docker and enable it.</h6>
+
+<pre><code class="language-bash">curl -fsSL https://get.docker.com -o get-docker.sh &amp;&amp; sh get-docker.sh &amp;&amp; docker --version &amp;&amp; systemctl start docker &amp;&amp; systemctl enable docker &amp;&amp; systemctl restart</code></pre>
+
+<h6 id='create_a_directory_and_open_a_port'>Create a directory and open a port</h6>
+
+<pre><code class="language-bash">myserve=&quot;smokeping&quot;
+sudo ufw allow 8899/tcp comment $myserve &amp;&amp; sudo ufw reload
+mkdir -p ~/myserve/$myserve &amp;&amp; cd ~/myserve/$myserve</code></pre>
+
+<h6 id='create_a_configuration_file'>Create a configuration file</h6>
+
+<pre><code class="language-bash">cat &gt; docker-compose.yml &lt;&lt; EOF
+version: &quot;2.1&quot;
+services:
+  smokeping:
+    image: lscr.io/linuxserver/smokeping:latest
+    container_name: smokeping
+    restart: unless-stopped
+    environment:
+      - PUID=root   # Customized, user name or UID.
+      - PGID=root   # Customized, group name or GID.
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./config:/config
+      - ./data:/data
+    ports:
+      - 8899:80
+EOF</code></pre>
+
+<h6 id='pull_down_the_image_of_the_project'>Pull down the image of the project</h6>
+
+<pre><code class="language-bash">docker compose pull</code></pre>
+
+<h6 id='run_the_project_in_docker'>Run the project in docker</h6>
+
+<pre><code class="language-bash">docker compose up -d</code></pre>
+
+<h4 id='custom'>Custom</h4>
+
+<h6 id='the_name_of_the_node_of_the_host_machine'>The name of the node of the host machine</h6>
+
+<p>Modify <code>config/General</code></p>
+
+<pre><code>*** General ***
+
+owner    = LinuxServer.io
+contact  = ironicbadger@linuxserver.io
+mailhost = my.mail.host
+cgiurl   = http://localhost/smokeping.cgi
+syslogfacility = local0
+
+display_name = machine_name   # here
+@include /config/pathnames</code></pre>
+
+<h6 id='probing_frequency'>Probing frequency</h6>
+
+<p>Modify <code>config/Database</code></p>
+
+<pre><code>*** Database ***
+step     = 180     # Interval of every two adjacent probes
+pings    = 20      # Probing times of each probe</code></pre>
+
+<h6 id='probe_types'>Probe types</h6>
+
+<p>Modify <code>config/Probe</code></p>
+
+<pre><code>*** Probes ***
+
++ FPing
+binary = /usr/sbin/fping
+packetsize = 1000
+
++ FPing6
+binary = /bin/ping6   # Can&#8217;t work fine.
+
++ DNS
+binary = /usr/bin/dig
+lookup = baidu.com
+pings = 5             # this &#8217;pings&#8217; would cover the one in config/Database
+step = 300            #this &#8217;step&#8217; would cover the one in config/Database
+
++ Curl
+binary = /usr/bin/curl
+forks = 5
+offset = 50%</code></pre>
+
+<h6 id='probing_targets'>Probing targets</h6>
+
+<p>Modify <code>config/Targets</code> according to this <a href='https://raw.githubusercontent.com/AhFeil/bash-script/main/smokeping-Targets'>page</a>.</p>
+
+<h5 id='restart_the_docker_container_to_apply_new_configuration'>Restart the docker container to apply new configuration</h5>
+
+<pre><code class="language-bash">docker compose down
+docker compose up -d</code></pre>

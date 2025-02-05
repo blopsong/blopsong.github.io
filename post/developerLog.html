@@ -1,0 +1,137 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;DeveloperLog&#8217; date = 2024-04-04T14:58:15+08:00 draft = true +++</p>
+
+<h4 id='2024'>2024</h4>
+
+<h5 id='4/2'>4/2</h5>
+
+<p>为什么 <code>* http.Response</code> 无法被当成参数传进去。我只能把 []byte 类型的 解析之后的response body 作为参数传进去进行 JSON schema 检查了。</p>
+
+<h5 id='4/3'>4/3</h5>
+
+<p>加了个captcha.go，做法是先生成随机字符串(specific length)，再根据该字符串在空白的图片上绘制文字(using third-party package)，最后返回给client。</p>
+
+<h5 id='4/4'>4/4</h5>
+
+<p>我正在构思如何选择api的设计模式。我决定移除github上的<code>test/database/</code> 和 <code>.vscode/</code>。虽然它们本来就不应该上传上去。</p>
+
+<p><code>gorilla/mux</code> 优势：</p>
+
+<ol type="1">
+<li>
+<p>动态路由</p>
+
+<pre><code class="language-go">router.HandleFunc(&quot;/users/{id}&quot;, getUser).Methods(&quot;GET&quot;)
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+   params := mux.Vars(r)
+   userID := params[&quot;id&quot;]
+   // 使用userID从数据库或其他存储中获取用户信息...
+}</code></pre>
+</li>
+
+<li>
+<p>为同一路径注册多个HTTP方法</p>
+
+<pre><code class="language-go">router.HandleFunc(&quot;/articles/{slug}&quot;, articleHandler).
+   Methods(&quot;GET&quot;, &quot;PUT&quot;, &quot;DELETE&quot;)
+func articleHandler(w http.ResponseWriter, r *http.Request) {
+   slug := mux.Vars(r)[&quot;slug&quot;]
+
+   switch r.Method {
+   case http.MethodGet:
+       getArticle(w, r, slug)
+   case http.MethodPut:
+       updateArticle(w, r, slug)
+   case http.MethodDelete:
+       deleteArticle(w, r, slug)
+   default:
+       w.WriteHeader(http.StatusMethodNotAllowed)
+   }
+}</code></pre>
+</li>
+
+<li>
+<p>为一组共享相同前缀的路由创建“子路由器”</p>
+
+<pre><code class="language-go">adminRouter := router.PathPrefix(&quot;/admin&quot;).Subrouter()
+adminRouter.HandleFunc(&quot;/users&quot;, listAdminUsers).Methods(&quot;GET&quot;)
+adminRouter.HandleFunc(&quot;/users/{id}&quot;, getAdminUser).Methods(&quot;GET&quot;)
+adminRouter.HandleFunc(&quot;/settings&quot;, updateAdminSettings).Methods(&quot;PUT&quot;)
+
+publicRouter := router.PathPrefix(&quot;/&quot;).Subrouter()
+publicRouter.HandleFunc(&quot;/users&quot;, listPublicUsers).Methods(&quot;GET&quot;)</code></pre>
+</li>
+
+<li>
+<p>自定义中间件</p>
+
+<pre><code class="language-go">middleware := []mux.MiddlewareFunc{
+   loggingMiddleware,
+   authenticationMiddleware,
+   responseCompressionMiddleware,
+}
+
+router.Use(middleware...)
+
+router.HandleFunc(&quot;/&quot;, homeHandler).Methods(&quot;GET&quot;)</code></pre>
+
+<p>我对context 感到疑惑。</p>
+</li>
+</ol>
+
+<p>少打了个 <code>/</code> , 完整的应该是 <code>/api/config/{key}</code>，debug了好久。</p>
+
+<h5 id='4/5'>4/5</h5>
+
+<p>现在已经可以用了。代理服务仍然是在8084端口，API在8085端口。其实应该也可以布置在同一个端口的。先push了再说。</p>
+
+<p>稍微了解了一下Go的<strong>channel</strong>，<strong>context</strong>.  另外，interface 好像和其他语言的用法差不多。</p>
+
+<h5 id='4/10'>4/10</h5>
+
+<p>好像不可以使用 map[string][]interface{}，用 map[string]interface{} 就可以达到相同的效果，即 <code>interface{}</code>已经包含了 <code>[]interface{}</code></p>
+
+<h5 id='4/12'>4/12</h5>
+
+<p><a href='https://github.com/facebook/create-react-app/discussions/10173'>装个npm和node.js可真废劲</a></p>
+
+<p>The error message you&#8217;re seeing indicates that the <code>create-react-app</code> tool requires at least Node.js version 14, but you are currently running Node.js version 10.19.0. This version mismatch is why you&#8217;re unable to proceed with creating a new React application.</p>
+
+<p>To resolve this, you need to update your Node.js to a version that is 14 or higher. Here&#8217;s how you can do it:</p>
+
+<ol type="1">
+<li>
+<p><strong>Uninstall the current version of Node.js</strong></p>
+
+<p>If you installed Node.js via Ubuntu&#8217;s package manager, you can uninstall it using the following command:</p>
+</li>
+</ol>
+
+<p>bash</p>
+
+<pre><code>   sudo apt remove nodejs npm</code></pre>
+
+<ol type="2">
+<li>
+<p><strong>Install Node.js using NodeSource</strong></p>
+
+<p>NodeSource provides more up-to-date versions of Node.js than the official Ubuntu repositories. To install a newer version, you can use the NodeSource repository.</p>
+
+<p>First, you can use curl to retrieve the installation script for your desired version of Node.js (replace <code>14.x</code> with <code>16.x</code> or <code>18.x</code> if you want a later version):</p>
+</li>
+</ol>
+
+<p>bash</p>
+
+<pre><code>   curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -</code></pre>
+
+<p>Then, install Node.js:</p>
+
+<p>bash</p>
+
+<pre><code>   sudo apt install -y nodejs</code></pre>
+
+<ol type="3">
+<li><strong>Verify the installation</strong></li>
+</ol>

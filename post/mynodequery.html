@@ -1,0 +1,94 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Mynodequery&#8217; date = 2024-02-29T20:49:26+08:00 draft = false +++</p>
+
+<h3 id='source'>Source</h3>
+
+<p><a href='https://blog.captainz.cc/posts/docker_compose_mynodequery.html'>Refered blog link</a></p>
+
+<p><a href='https://hub.docker.com/r/jaydenlee2019/mynodequery'>Project</a></p>
+
+<h3 id='start'>Start</h3>
+
+<h5 id='install_docker_and_docker-compose'>install docker and docker-compose</h5>
+
+<pre><code class="language-bash"># install docker
+curl -fsSL https://get.docker.com -o get-docker.sh &amp;&amp; sh get-docker.sh &amp;&amp; docker --version &amp;&amp; systemctl start docker &amp;&amp; systemctl enable docker &amp;&amp; systemctl restart docker
+
+# install docker-compose
+sudo curl -L &quot;https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)&quot; -o /usr/local/bin/docker-compose &amp;&amp; sudo chmod +x /usr/local/bin/docker-compose &amp;&amp; docker-compose --version</code></pre>
+
+<h5 id='make_some_configuration_files'>Make some configuration files</h5>
+
+<pre><code class="language-bash">mkdir ~/MyNodeQuery &amp;&amp; cd ~/MyNodeQuery
+touch docker-compose.yml
+touch appsettings.json</code></pre>
+
+<p>Add the following to <code>docker-compose.yml</code></p>
+
+<pre><code class="language-yaml">version: &#8217;3.3&#8217;
+services:
+  mynodequery:
+    container_name: mynodequery
+    ports:
+      - &#8217;5000:5000&#8217;
+    volumes:
+      - &#8217;./appsettings.json:/app/appsettings.json&#8217;
+    image: &#8217;jaydenlee2019/mynodequery:latest&#8217;
+
+  mynodequerydb:
+    image: &#8217;docker.io/mysql:latest&#8217; # image
+    restart: always
+    container_name: mynodequery-mysql  #container name
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./data:/var/lib/mysql  #mounted directory, for permenent store
+    # ports:
+    #   - &#8217;3306:3306&#8217;
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: &quot;mynodequery&quot;   #set the password for root</code></pre>
+
+<p>Add the following to <code>appsettings.json</code></p>
+
+<pre><code class="language-json">{
+  &quot;Logging&quot;: {
+      &quot;LogLevel&quot;: {
+          &quot;Default&quot;: &quot;Information&quot;,
+          &quot;Microsoft&quot;: &quot;Warning&quot;,
+          &quot;Microsoft.Hosting.Lifetime&quot;: &quot;Information&quot;
+      }
+  },
+  &quot;MySql&quot;: {
+      &quot;ConnectionString&quot;: &quot;&quot;
+  },
+  &quot;AllowedHosts&quot;: &quot;*&quot;,
+  &quot;Installed&quot;: &quot;false&quot;,
+  &quot;ReadNodeIpHeaderKey&quot;: &quot;X-Real-IP&quot;
+ }</code></pre>
+
+<h5 id='run_the_program'>Run the program</h5>
+
+<p>Execute the following command to run the project in docker</p>
+
+<pre><code class="language-bash">docker-compose up -d</code></pre>
+
+<p>Create a new database of Mysql in the docker container</p>
+
+<pre><code class="language-bash"># enter the container of mysql
+docker exec -it mynodequery-mysql /bin/bash
+# log in mysql as root
+mysql -uroot -p #then input the password for root (it&#8217;s &quot;mynodequery&quot;)
+# create a new database
+create database mynodequery charset=utf8;
+# quit from mysql
+exit
+# quit from mysql container
+exit</code></pre>
+
+<h5 id='visit_the_frontend_to_finish_other_configuration'>Visit the frontend to finish other configuration</h5>
+
+<p>Visit <code>http://ip:5000</code> in our browser.</p>
+
+<h5 id='attention'>Attention</h5>
+
+<p>Modify the <code>sh</code> to <code>bash</code> in the command which is generated when a node added.</p>

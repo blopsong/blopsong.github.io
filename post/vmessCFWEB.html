@@ -1,0 +1,79 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Vmess + CF + WEB&#8217; date = 2024-01-22T23:50:01+08:00 draft = false +++</p>
+
+<h4 id='prerequisite'>Prerequisite</h4>
+
+<p>A vps running x-ui, a domain utilizing Cloudflare for DNS resolution and CDN services.</p>
+
+<h4 id='step_1'>Step 1</h4>
+
+<p>In x-ui, add an inbound.</p>
+
+<pre><code>protocol: vmess
+listening address: 127.0.0.1
+port: random
+#----------
+#add a user
+#----------
+network: ws
+path: /example #replace &#8217;example&#8217; with something you can memorize</code></pre>
+
+<h4 id='step_2'>Step 2</h4>
+
+<p>Copy the configuration link and import into v2ray. And make the following modification.</p>
+
+<pre><code>address: *.*.*.*     #the IP of your vps
+port: 443         #80 if not going to use https protocol
+tls: tls</code></pre>
+
+<h4 id='step_3'>Step 3</h4>
+
+<p>Modify the configuration of nginx(default path: <code>/etc/nginx/sites-available/default</code>)</p>
+
+<pre><code>server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        # Add index.php to the list if you are using PHP
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+
+        location / {
+                proxy_pass https://www.bing.com;
+                proxy_ssl_server_name on;
+                proxy_redirect off;
+                sub_filter_once off;
+                sub_filter &quot;www.bing.com&quot; $server_name;
+                proxy_set_header Host &quot;www.bing.com&quot;;
+                proxy_set_header Referer $http_referer;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header User-Agent $http_user_agent;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto https;
+                proxy_set_header Accept-Encoding &quot;&quot;;
+                proxy_set_header Accept-Language &quot;zh-CN&quot;;
+        }
+        location /example {                        #replace the path
+                proxy_redirect off;
+                proxy_pass http://127.0.0.1:52321;     #replace the port num
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection &quot;upgrade&quot;;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+        }</code></pre>
+
+<p>Reference: &lt;https://bulianglin.com/archives/guide.html&gt;</p>
+
+<h5 id='journey'>Journey</h5>
+
+<p>Installed nginx, avoiding confliction with hysteria which is listening on port 443. (No problem, nginx can start fluently.)</p>
+
+<p>Modified the configuration of nginx within the help of chatgpt. (Too simple if not telling it  that I was using websocket protocol. And I was missing the <code>proxy_set_header Connection &quot;upgrade&quot;;</code> part for such a long time, which made nginx reture 400 to the client.)</p>
+
+<p>Clearified the websocket path and user id in x-ui. (Made a xray proccess listen on a port and its ws path should be the same with the path of client v2ray node and nginx passing rules path. One is for authentification and anther is for redirecting. User id is also for authentification.)</p>

@@ -1,0 +1,74 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Connection to Github with SSH&#8217; date = 2024-01-21T12:25:29+08:00 draft = false +++</p>
+
+<h5 id='create_a_depository_on_local'>Create a depository on local</h5>
+
+<pre><code class="language-git">git init</code></pre>
+
+<h5 id='set_username_and_email'>Set username and email</h5>
+
+<pre><code class="language-git">git config --global user.name &quot;luminary&quot;
+git config --global user.email &quot;luminary@g.com&quot;</code></pre>
+
+<h5 id='generate_a_new_ssh_key'>Generate a new SSH key</h5>
+
+<pre><code class="language-git">ssh-keygen -t ed25519 -C &quot;your_email@example.com&quot;</code></pre>
+
+<h5 id='adding_the_ssh_key_to_the_ssh-agent'>Adding the SSH key to the ssh-agent</h5>
+
+<p>In a new <em>admin elevated</em> PowerShell window, ensure the ssh-agent is running. You can start it manually:</p>
+
+<pre><code class="language-powershell"># start the ssh-agent in the background
+Get-Service -Name ssh-agent | Set-Service -StartupType Manual
+Start-Service ssh-agent</code></pre>
+
+<p>In a terminal window without elevated permissions, add your SSH private key to the ssh-agent. If you created your key with a different name, or if you are adding an existing key that has a different name, replace <em>id_ed25519</em> in the command with the name of your private key file.</p>
+
+<pre><code class="language-powershell">ssh-add c:\Users\YOU\.ssh\id_ed25519</code></pre>
+
+<h5 id='make_ssh-agent_auto_start_on_debian'>Make ssh-agent auto start on Debian</h5>
+
+<p>要在 Debian 上实现 <code>ssh-agent</code> 的开机自启动，您可以将以下命令添加到您的 <code>~/.bashrc</code> 或 <code>~/.bash_profile</code> 文件中：</p>
+
+<pre><code class="language-bash">if [ -z &quot;$SSH_AUTH_SOCK&quot; ] ; then
+    eval $(ssh-agent)
+fi </code></pre>
+
+<p>这段代码会检查是否已经设置了 <code>SSH_AUTH_SOCK</code> 环境变量（即检查 <code>ssh-agent</code> 是否已经在当前 shell 中运行），如果没有设置，则启动一个新的 <code>ssh-agent</code> 进程。</p>
+
+<p>请注意，这种方法会在每次打开新的终端时启动一个新的 <code>ssh-agent</code> 进程。如果您希望 <code>ssh-agent</code> 在系统启动时就启动并一直运行，可以考虑将启动 <code>ssh-agent</code> 的命令添加到系统的启动脚本中。</p>
+
+<h5 id='adding_a_new_ssh_key_to_github_account'>Adding a new SSH key to Github account</h5>
+
+<p>Open your github personal <strong>settings</strong> and choose the <strong>SSH and GPG keys</strong>. Then click the <strong>New SSH key</strong> button, give your key a <strong>title</strong> as you like and paste all the contents of the <strong>id_ed25519.pub</strong> file into the <strong>key</strong> section. Finally click the <strong>Add SSH key</strong> button to complete adding.</p>
+
+<h5 id='test_ssh_connection'>Test SSH connection</h5>
+
+<pre><code class="language-bash">ssh -T git@github.com</code></pre>
+
+<p>If it works then it would inform you that:</p>
+
+<p><code>Hi user! You&#8217;ve successfully authenticated, but GitHub does not provide shell access.</code></p>
+
+<h5 id='some_helpful_commands'>Some helpful commands</h5>
+
+<pre><code class="language-powershell">ssh-keygen -lf file_path     # Show the fingerprint, notation and algorithm of the key file
+ssh-add -l     # Show all the fingerprints of the key file that we&#8217;ve add to our ssh agent
+ssh-add file_path     #Add the key file to our ssh agent
+ssh-agent -s     # Run the ssh-agent</code></pre>
+
+<p>If our <strong>git</strong> CLI couldn&#8217;t pull or push to the remote repository, we could try <a href='https://stackoverflow.com/a/69992322/18821757'>this</a> out.</p>
+
+<h5 id='postscript'>Postscript</h5>
+
+<p>If it still can&#8217;t connect to github through SSH, create a <code>~/user/.ssh/config</code> file if not exists and add the following:</p>
+
+<pre><code>Host github.com
+ Hostname ssh.github.com
+ Port 22</code></pre>
+
+<p>check out this <a href='https://stackoverflow.com/questions/15589682/ssh-connect-to-host-github-com-port-22-connection-timed-out'>page</a> for more information.</p>
+
+<h6 id='source'>Source</h6>
+
+<p>Check the <a href='https://docs.github.com/en/authentication/connecting-to-github-with-ssh'>original</a> out.</p>

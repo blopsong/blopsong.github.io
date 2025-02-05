@@ -1,0 +1,288 @@
+<meta charset="UTF-8">
+<hr><p>title: &quot;Having Fun&quot; authors: [Aclius]</p>
+
+<h2 id='date:_2000-01-01t00:00:00+08:00'>date: 2000-01-01T00:00:00+08:00</h2>
+
+<h2 id='how_was_this_blog_builded'>How was this blog builded</h2>
+
+<p><a href='https://cuttontail.blog/blog/create-a-wesite-using-github-pages-and-hugo/'>source</a></p>
+
+<p><a href='https://themes.gohugo.io/themes/manis-hugo-theme/'>theme</a></p>
+
+<h2 id='random'>Random</h2>
+
+<h6 id='keyboard_got_locked'>Keyboard got locked</h6>
+
+<p>A cat standing on my keyboard for a good amount of seconds and the keyboard got locked afer instant sharp &#8217;di&#8217; sound. The solution is press the right <code>Shift</code> key for more than 8 seconds. Reference: &lt;https://www.zhihu.com/question/539981785#&gt;</p>
+
+<h2 id='vps'>VPS</h2>
+
+<h4 id='basic'>Basic</h4>
+
+<h6 id='add_a_new_user'>Add a new user</h6>
+
+<p><code>adduser</code> and <code>useradd</code> are different. Use <code>adduser</code>. So applied to other similar commands, I guess.</p>
+
+<h6 id='add_a_pubkey_file'>Add a pubkey file</h6>
+
+<p>First generate a pair of <strong>publicKey</strong>and <strong>secretKey</strong> files:</p>
+
+<pre><code class="language-powershell">#Windows
+ssh-keygen -t rsa -b 4096</code></pre>
+
+<p>Then upload the pubkey file to <code>~/</code>, and then put it in the correct position as following:</p>
+
+<pre><code class="language-bash">$ cd ~ &amp;&amp; mkdir .ssh
+$ mv pubkey_file .ssh/authorized_keys</code></pre>
+
+<h6 id='modify_ssh_configuration'>Modify SSH configuration</h6>
+
+<p>In <code>/etc/ssh/sshd_config</code></p>
+
+<pre><code>Port 22     # replace it with a high number port
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes </code></pre>
+
+<h6 id='add_a_path_to_the_shell'>Add a path to the shell</h6>
+
+<p>in <code>~/.bashrc</code>, add the following:</p>
+
+<pre><code>export PATH=$PATH:/usr/sbin</code></pre>
+
+<h6 id='set_up_firewall'>Set up firewall</h6>
+
+<pre><code class="language-bash">$ sudo apt install ufw
+$ sudo ufw enable</code></pre>
+
+<h6 id='swap'>Swap</h6>
+
+<p>Abort the previous one if necessary</p>
+
+<pre><code class="language-bash">swapoff swapfile     # Assumed we&#8217;re in the directory of &#8217;swapfile&#8217;
+rm swapfile</code></pre>
+
+<p>Create a directory <code>/swap</code> for the new one</p>
+
+<pre><code class="language-bash">cd / &amp;&amp; mkdir swap &amp;&amp; cd swap</code></pre>
+
+<p>Create a <code>swapfile</code></p>
+
+<pre><code class="language-bash">dd if=/dev/zero of=swapfile bs=1M count=1024     # adjust &#8217;count&#8217; as you wish</code></pre>
+
+<p>Mark it as swap space and activate it</p>
+
+<pre><code class="language-bash">mkswap swapfile
+swapon swapfile
+chmod 600 swapfile     # for safety cocnern</code></pre>
+
+<p>Check if it&#8217;s activatted</p>
+
+<pre><code class="language-bash">swapon --show</code></pre>
+
+<p>Set as auto mounting after booting</p>
+
+<pre><code class="language-bash">echo &quot;/swap/swapfile none swap sw 0 0&quot; &gt;&gt; /etc/fstab</code></pre>
+
+<h6 id='set_up_congestion_control_algorithm(bbr)_and_queue_scheduling_algorithm(fair_queuing)'>Set up congestion control algorithm(bbr) and queue scheduling algorithm(fair queuing)</h6>
+
+<pre><code class="language-bash">#check the current algrithm
+sysctl net.ipv4.tcp_congestion_control
+#check the Linux version (expect to be newer than 4.9)
+uname -r
+
+#BBR set up
+echo &quot;net.core.default_qdisc=fq&quot; &gt;&gt; /etc/sysctl.conf
+echo &quot;net.ipv4.tcp_congestion_control=bbr&quot; &gt;&gt; /etc/sysctl.conf
+sysctl -p</code></pre>
+
+<h6 id='check_outbound_ip_address'>Check outbound IP address</h6>
+
+<pre><code class="language-bash">curl -4 ip.sb    # ipv4
+curl ip.p3terx.com    #ipv4 and AS</code></pre>
+
+<h6 id='timezone'>Timezone</h6>
+
+<p><a href='https://zhuanlan.zhihu.com/p/137122724'>source</a></p>
+
+<p>Check the current time zone</p>
+
+<pre><code class="language-bash">timedatectl</code></pre>
+
+<p>List all the time zone candidates</p>
+
+<pre><code class="language-bash">timedatectl list-timezones</code></pre>
+
+<p>Set a new timezone</p>
+
+<pre><code class="language-bash">sudo timedatectl set-timezone Africa/Accra</code></pre>
+
+<h4 id='advance'>Advance</h4>
+
+<h6 id='for_ipv6_only_vps:'>For <strong>ipv6</strong> only VPS:</h6>
+
+<p>Modify to Google DNS server:</p>
+
+<pre><code class="language-bash">cp /etc/resolv.conf{,.bak}; echo -e &quot;nameserver 2a00:1098:2b::1\nnameserver 2a01:4f9:c010:3f02::1\nnameserver 2a01:4f8:c2c:123f::1\nnameserver 2a00:1098:2c::1&quot; &gt; /etc/resolv.conf</code></pre>
+
+<p>Add an outbound IPv4 Address to an IPv6 VPS via <strong>Warp</strong></p>
+
+<pre><code class="language-bash">wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh &amp;&amp; bash menu.sh 4</code></pre>
+
+<p><strong>Sing-box</strong> + <strong>argo</strong></p>
+
+<pre><code class="language-bash">bash &lt;(wget -qO- https://raw.githubusercontent.com/fscarmen/sba/main/sba.sh)</code></pre>
+
+<h4 id='pandora's_box'>Pandora&#8217;s box</h4>
+
+<h6 id='daily_automatic_check-in_in_nodeseek_by_session_cookie'>Daily automatic check-in in nodeseek by session cookie</h6>
+
+<p>Install the <a href='https://github.com/lwthiker/curl-impersonate#pre-compiled-binaries'>pre-compiled binaris</a> (this step is to pass through TLS fingerprint detection.)</p>
+
+<pre><code class="language-bash"># Ubuntu/Debian
+sudo apt install libnss3 nss-plugin-pem ca-certificates</code></pre>
+
+<p>Download and unzip to get the executable binaries from <a href='https://github.com/lwthiker/curl-impersonate/releases'>release page</a></p>
+
+<pre><code class="language-bash"># Download zip
+wget https://github.com/lwthiker/curl-impersonate/releases/download/v0.6.1/curl-impersonate-v0.6.1.x86_64-linux-gnu.tar.gz
+# Unzip them to the current directory
+tar -zxvf curl-impersonate-v0.6.1.x86_64-linux-gnu.tar.gz</code></pre>
+
+<p>Get your session cookie by <code>F12</code> -&gt; <code>Application</code> -&gt; <code>Storage/Cookies</code></p>
+
+<p>Test a binary</p>
+
+<pre><code class="language-bash"># Replace xxx with your session cookie
+# If success, it will return some JSOM data
+curl_chrome116 &#8217;https://www.nodeseek.com/api/attendance?random=true&#8217; --compressed -X POST -H &#8217;Cookie: session=xxx&#8217;</code></pre>
+
+<p>(Optional) I personally like to wrap this command into a shell script and then automatically run it uising <strong>cron</strong>.</p>
+
+<p>Edit a <code>name.sh</code>:</p>
+
+<pre><code class="language-bash">#!/bin/bash
+/path/to/curl_impersonate/curl_chrome110 &#8217;https://www.nodeseek.com/api/attendance?random=true&#8217; --compressed -X POST -H &#8217;Cookie: session=xxx&#8217;</code></pre>
+
+<p>Edit <strong>crontab</strong> by running <code>crontab -e</code></p>
+
+<pre><code># Add the following line
+1 0 * * * /path/to/name.sh
+# If you want to log the information, consider adding the following(create log.txt firstly)
+1 0 * * * /path/to/name.sh 2&gt;&amp;1 | grep -oP &#8217;\{[^{}]+\}&#8217;  &gt;&gt; /path/to/log.txt</code></pre>
+
+<p>So far, it seems like the the expiration of the session cookie is just one month. I may need to update it every month or after changing the login password or login or logout each time.</p>
+
+<h6 id='self-signed_certificate'>Self-signed certificate</h6>
+
+<pre><code class="language-bash">openssl req -x509 -nodes -newkey ec:&lt;(openssl ecparam -name prime256v1) -keyout /home/bauk/server.key -out /home/bauk/server.crt -subj &quot;/CN=bing.com&quot; -days 3650 &amp;&amp; sudo chown bauk /home/bauk/server.key &amp;&amp; sudo chown bauk /home/bauk/server.crt</code></pre>
+
+<h4 id='scripts'>Scripts</h4>
+
+<p><a href='https://bulianglin.com/archives/nicename.html'>link</a></p>
+
+<h5 id='x-ui'>X-UI</h5>
+
+<pre><code class="language-bash">bash &lt;(curl -Ls https://raw.githubusercontent.com/FranzKafkaYu/x-ui/956bf85bbac978d56c0e319c5fac2d6db7df9564/install.sh) 0.3.4.4</code></pre>
+
+<h5 id='dd_operating_system'>dd operating system</h5>
+
+<p><a href='https://blockxyz.notion.site/DD-VPS-fb837703b3ac4011bb2362e3a56ac148'>Useful source</a> and <a href='https://www.moeelf.com/archives/293.html'>original script source</a></p>
+
+<pre><code class="language-bash">bash &lt;(wget --no-check-certificate -qO- &#8217;https://moeclub.org/attachment/LinuxShell/InstallNET.sh&#8217;) -d 11 -v 64 -a -p custom_password -port custom_ssh_ports</code></pre>
+
+<h6 id='various_scripts'>Various scripts</h6>
+
+<p><a href='https://www.nodeseek.com/post-19427-1'>Reference</a></p>
+
+<h2 id='xray'>xray</h2>
+
+<p><a href='https://github.com/chika0801/Xray-examples?tab=readme-ov-file'>configuration tutorial</a></p>
+
+<h6 id='log_of_xray'>Log of xray</h6>
+
+<p>To check the log of xray</p>
+
+<pre><code class="language-bash">journalctl -u xray -o cat -e # 
+journalctl -u xray -o cat -f #</code></pre>
+
+<p>By default, what we see after running the above commands are the system service log of xray service. And they are ususally stored in <code>/var/log/journal/</code> directory as binary files. By default, these log files could grow larger and larger without any limit. To prevent they taking too much disk space, we could edit <code>/etc/systemd/journald.conf</code>.</p>
+
+<pre><code class="language-conf"># Limit Log Size: Set a maximum size for individual journal files. For example
+SystemMaxUse=1G
+# Limit Disk Usage: Set a maximum disk space usage for all journal files combined.  For example:
+SystemMaxFileSize=100M
+# Enable Time-based Rotation. For example, to keep logs for 1 week, use:
+SystemKeepLogs=1week
+# Adjust Vacuuming Frequency: systemd provides automatic vacuuming of journal files, which removes older log data to keep within the configured limits. You can adjust the frequency of vacuuming by setting the SystemMaxFileSec option in /etc/systemd/journald.conf. For example, to vacuum journal files every day, use:
+SystemMaxFileSec=1day</code></pre>
+
+<p><strong>Triggering Rotation Manually</strong>: You can also manually trigger log rotation using the <code>journalctl</code> command. For example, to rotate the journal files immediately, use:</p>
+
+<pre><code class="language-bash">journalctl --rotate</code></pre>
+
+<p>After making changes to the <code>journald.conf</code> file, you need to restart the <code>systemd-journald</code> service for the changes to take effect:</p>
+
+<pre><code class="language-bash">sudo systemctl restart systemd-journald</code></pre>
+
+<h2 id='iptables'>iptables</h2>
+
+<p>要禁止或允许特定IP地址对您的机器进行访问，您可以使用iptables。以下是一些基本的iptables命令示例：</p>
+
+<ol type="1">
+<li>
+<p>禁止特定IP地址访问您的机器：</p>
+
+<p>bash</p>
+
+<p><code>sudo iptables -A INPUT -s 192.168.1.100 -j DROP</code></p>
+
+<p>这会将IP地址<code>192.168.1.100</code>添加到输入链中，并将其动作设置为<code>DROP</code>，从而拒绝来自该IP地址的所有流量。</p>
+</li>
+
+<li>
+<p>允许特定IP地址访问您的机器：</p>
+
+<p>bash</p>
+
+<p><code>sudo iptables -A INPUT -s 192.168.1.100 -j ACCEPT</code></p>
+
+<p>这会将IP地址<code>192.168.1.100</code>添加到输入链中，并将其动作设置为<code>ACCEPT</code>，从而允许来自该IP地址的所有流量。</p>
+</li>
+</ol>
+
+<p>请注意，这些规则将在系统重启后失效。如果您想要永久性地保存这些规则，您需要将规则保存到iptables规则文件中。您可以使用以下命令保存规则：</p>
+
+<p>bash</p>
+
+<p><code>sudo iptables-save &gt; /etc/iptables/rules.v4</code></p>
+
+<p>要确保这些规则在系统启动时自动加载，请确保在<code>/etc/network/interfaces</code>中包含以下行：</p>
+
+<p>javascript</p>
+
+<p><code>pre-up iptables-restore &lt; /etc/iptables/rules.v4</code></p>
+
+<p>或者，如果您的系统使用<code>systemd</code>，您可以使用以下命令：</p>
+
+<p>bash</p>
+
+<p><code>sudo iptables-save &gt; /etc/iptables/rules.v4 sudo systemctl restart iptables</code></p>
+
+<p>这将保存规则并重启iptables服务，以便规则在系统启动时自动加载。</p>
+
+<h2 id='transfering_files_between_linux_machines'>Transfering files between Linux machines</h2>
+
+<pre><code>scp -P port_number file_path user_name@1.1.1.1 destination_path/</code></pre>
+
+<h2 id='unix_socket_and_tcp/ip_socket'>Unix socket and TCP/IP socket</h2>
+
+<p><a href='https://serverfault.com/questions/124517/what-is-the-difference-between-unix-sockets-and-tcp-ip-sockets'>Q/A on stack overflow</a></p>
+
+<p>A UNIX socket, AKA Unix Domain Socket, is an inter-process communication mechanism that allows bidirectional data exchange between processes running on the same machine.</p>
+
+<p>IP sockets (especially TCP/IP sockets) are a mechanism allowing communication between processes over the network. In some cases, you can use TCP/IP sockets to talk with processes running on the same computer (by using the loopback interface).</p>
+
+<p>UNIX domain sockets know that they’re executing on the same system, so they can avoid some checks and operations (like routing); which makes them faster and lighter than IP sockets. So if you plan to communicate with processes on the same host, this is a better option than IP sockets.</p>
+
+<p>Edit: As per Nils Toedtmann&#8217;s comment: UNIX domain sockets are subject to file system permissions, while TCP sockets can be controlled only on the packet filter level.</p>

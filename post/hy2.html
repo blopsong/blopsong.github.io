@@ -1,0 +1,80 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;hy2&#8217; date = 2024-01-20T16:50:56+08:00 draft = false +++</p>
+
+<h6 id='related_links'>Related links</h6>
+
+<p>V2rayN: &lt;https://github.com/2dust/v2rayN/releases/latest&gt;</p>
+
+<p>Hysteria 2 project：&lt;https://github.com/apernet/hysteria/releases&gt;</p>
+
+<p>Hysteria 2 document：&lt;https://v2.hysteria.network/zh/&gt;</p>
+
+<h5 id='install_hysteria_2'>Install hysteria 2</h5>
+
+<pre><code class="language-bash">bash &lt;(curl -fsSL https://get.hy2.sh/)</code></pre>
+
+<h5 id='generate_self-signed_certification'>Generate Self-Signed Certification</h5>
+
+<pre><code class="language-bash">openssl req -x509 -nodes -newkey ec:&lt;(openssl ecparam -name prime256v1) -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj &quot;/CN=bing.com&quot; -days 36500 &amp;&amp; sudo chown hysteria /etc/hysteria/server.key &amp;&amp; sudo chown hysteria /etc/hysteria/server.crt</code></pre>
+
+<h6 id='all_the_commands_might_need'>All the commands might need</h6>
+
+<pre><code class="language-bash">#start Hysteria2
+systemctl start hysteria-server.service
+#restart Hysteria2
+systemctl restart hysteria-server.service
+#status of Hysteria2
+systemctl status hysteria-server.service
+#stop Hysteria2
+systemctl stop hysteria-server.service
+#enable auto start after booting
+systemctl enable hysteria-server.service
+#check the logs
+journalctl -u hysteria-server.service</code></pre>
+
+<h5 id='the_configuration_of_server'>The configuration of server</h5>
+
+<pre><code class="language-bash">cat &lt;&lt; EOF &gt; /etc/hysteria/config.yaml
+listen: :443 #port
+
+#use CA certificate
+#acme:
+#  domains:
+#    - a.com #Your domain that has been resolved
+#  email: test@sharklasers.com
+
+#or use self-signed certificate
+#tls:
+#  cert: /etc/hysteria/server.crt
+#  key: /etc/hysteria/server.key
+
+auth:
+  type: password
+  password: 123456    #Custom your password
+
+masquerade:
+  type: proxy
+  proxy:
+    url: https://bing.com     #Replace it with what you want
+    rewriteHost: true
+EOF</code></pre>
+
+<h5 id='the_configuration_of_client'>The configuration of client</h5>
+
+<pre><code class="language-bash">server: [ip]:443
+auth: 123456
+
+bandwidth:
+  up: 20 mbps
+  down: 100 mbps
+
+tls:
+  sni: a.com
+  insecure: false #set to &#8217;true&#8217; when using self-signed certificated
+
+socks5:
+  listen: 127.0.0.1:1080
+http:
+  listen: 127.0.0.1:8080</code></pre>
+
+<p>Source: <a href='https://bulianglin.com/archives/hysteria2.html'>reference</a></p>

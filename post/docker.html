@@ -1,0 +1,67 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Play with Docker&#8217; date = 2024-03-25T10:50:25+08:00 draft = false +++</p>
+
+<p>hey</p>
+
+<h4 id='commands'>Commands</h4>
+
+<p>Build a image</p>
+
+<pre><code class="language-bash"># . means the current directory, so the example command would use ./Dockerfile to build a image
+docker build -t image_name .</code></pre>
+
+<p>Run a docker container using a image</p>
+
+<pre><code class="language-bash"># -d means run in the background
+# --name container_name specifies the containner name
+docker run -d --name container_name image_name</code></pre>
+
+<p>Show containners</p>
+
+<pre><code class="language-bash"># show the containers that are running
+docker ps
+# show all the containners
+docker ps -a</code></pre>
+
+<p>Show the logs of a container</p>
+
+<pre><code class="language-bash">docker logs container_name</code></pre>
+
+<p>To be continue</p>
+
+<h6 id='makefile'>Makefile</h6>
+
+<p>A binary built on a Debian system may not work on an Alpine container due to differences in the underlying system libraries. Alpine uses <code>musl libc</code> instead of <code>glibc</code> which is commonly used in other distributions like Debian. As a result, a binary compiled against <code>glibc</code> might not work on Alpine.</p>
+
+<p>To build a binary that is compatible with Alpine, you need to statically compile your Go application with <code>CGO_ENABLED=0</code> to not link against <code>c</code> libraries and ensure all dependencies are included in the binary itself.</p>
+
+<p>Here&#8217;s how you can modify your Makefile to build a statically linked binary that will run on Alpine:</p>
+
+<p>makefile</p>
+
+<pre><code class="language-makefile">build:
+        @CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/servi .
+
+run: build
+        ./bin/servi</code></pre>
+
+<p>The <code>CGO_ENABLED=0</code> disables CGO, <code>GOOS=linux</code> ensures that the binary is built for Linux, <code>-a</code> forces rebuilding of all packages, and <code>-installsuffix cgo</code> adds a suffix to the package path to ensure a unique binary name. This will produce a binary that should work in your Alpine Docker container.</p>
+
+<h6 id='dockerfile'>Dockerfile</h6>
+
+<p>An example:</p>
+
+<pre><code class="language-dockerfile"># Use a specific version of the minimal Alpine base image
+FROM alpine:3.15
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the binary file of your Go application into the container
+# Ensure that the binary has executable permissions before building the Docker image
+COPY bin/servi /app/servi
+
+# Set the entry point of the container to your Go application binary
+ENTRYPOINT [&quot;./servi&quot;]</code></pre>
+
+<p>Remember to replace <code>3.15</code> with the version of Alpine that you want to use. Also, before building the Docker image, make sure your <code>servi</code> binary is executable by running <code>chmod +x bin/servi</code> on your host machine if necessary.</p>

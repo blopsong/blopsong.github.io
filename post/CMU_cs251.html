@@ -1,0 +1,148 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;CMU_cs251&#8217; date = 2024-12-20T20:40:18+08:00 draft = true +++</p>
+
+<h2 id='part_1_introduction'>Part 1 Introduction</h2>
+
+<h2 id='part_2_mathmatical_reasoning_and_proof'>Part 2 Mathmatical Reasoning and Proof</h2>
+
+<p><strong>Old regular mathematics</strong></p>
+
+<p>Follow your <strong>intuition</strong> while exploring mathematics.</p>
+
+<p>Mathematical reasoning: axiom --(deduction)--&gt; truths(which is limited to one&#8217;s interpretation) --&gt; truths. Euclidean geometry is kinda a paradigm.</p>
+
+<p>Can every mathematical theorem be <strong>derived</strong> from a set of agreed upon <strong>axioms</strong>? Similar to breaking down any program to pure machine codes(machine codes are like axiom here).</p>
+
+<p>A naive definition of a set breaks mathematics.</p>
+
+<p>How do we formalize <strong>mathematical reasoning</strong> by building a mathmatical model? How do we formally represent <strong>statements</strong>? Which statements are &quot;obviously&quot; true?(What are the <strong>axioms</strong>) Which <strong>decuction rules</strong> are allowed? How are they formally represented?</p>
+
+<p>Mathematical reasoning is <strong>computation</strong>.</p>
+
+<ol type="1">
+<li><strong>Aristotle</strong>: logic is about <strong>unambiguous statements</strong>, <strong>deductive reasoning</strong> and <strong>first principle approach</strong>.</li>
+
+<li><strong>Euclid</strong>: A mathematical incarnation of Aristolean logic.</li>
+
+<li><strong>Leibniz</strong>: Envisioned an algebra/calculus for logic(computational propositional logic).</li>
+
+<li><strong>George Boole</strong>: Inventor of propositional calculus.</li>
+
+<li><strong>Georg Cantor</strong>: Father of <strong>set theory</strong>. The person who dared to tackle infinity head-on.</li>
+
+<li><strong>Gottlob Frege</strong>: Lays the foundation for <strong>first order logic</strong>(predicate calculus). Proposes axioms for set theory.</li>
+
+<li><strong>Bertrand Russell</strong>: Barber paradox.</li>
+
+<li><strong>Whitehead</strong>: <em>Principia Mathematica, Volume 2</em></li>
+
+<li><strong>David Hilbert</strong>:</li>
+
+<li><strong>kurt Godel</strong>: <strong>Completeness theorem</strong> and <strong>incompleteness theorem</strong>.</li>
+
+<li><strong>Alan Turing</strong>:</li>
+</ol>
+
+<p>The upshot: we can rigoously formalize mathematical proofs while there are limits to what can be proved.</p>
+
+<h2 id='part_3_strings,_encodings,_problems'>Part 3 Strings, encodings, problems</h2>
+
+<ul>
+<li>If you want to understand something better, one of the best method, the most reliable method we have is, mathematical modelling.</li>
+</ul>
+
+<p>Another arogant claim from the logic erocted western. I am quit dissapoint with that.</p>
+
+<p>Input --&gt; &quot;computer&quot; --&gt; output</p>
+
+<p>Information measures the number of possible state in which the system can be. Information is zero if the system only have one state.</p>
+
+<p>Imagine computing as a process of information, which takes some input and then produces some output. Now we need a way to represent those information of input and output.</p>
+
+<p>If we human-beings are in the position of the computer, the language we use to communicate is the representation of  the information we are exchanging.</p>
+
+<p><strong>encoding</strong>: given a set A of objects, an encoding of elements of A is an <strong>injective function</strong>. Enc: A --&gt; $/sum_{}^{}*$ It is kind of like <strong>labling</strong> each one of the element.</p>
+
+<p>Does every object have a corresponding encoding? Can two objects have the same encoding? Does every string correspond to a valid encoding?</p>
+
+<p>Which sets are encodable? Encodability = Countability (?)</p>
+
+<p>For the uncountable sets, e.g. rational number, we try to represent them by approximating with certain precision.</p>
+
+<p>What is <strong>computation</strong>? What is an <strong>algorithm</strong>? How can we mathematically define them?</p>
+
+<p>Reasonable assumptions:</p>
+
+<ul>
+<li>Computer is deterministic(Give a certain input, the computer always returns the same output)</li>
+
+<li>Input can be any finite-length string</li>
+
+<li>For all inputs, there is an output</li>
+
+<li>Output is a finite-length string</li>
+</ul>
+
+<p>How can we characterize the input/output behavior of a computer?</p>
+
+<ul>
+<li>Function.</li>
+</ul>
+
+<p>However, computation is about <strong>how</strong> instead of <strong>what</strong>.</p>
+
+<p>A computer/algorithm <strong>solves</strong> function prblem <strong>f</strong> if its input/output behavior corresponds to <strong>f</strong>.</p>
+
+<p><strong>Language</strong>: Any set <strong>L</strong> of finite-length strings over an alphabet $/sum_{}^{} $.</p>
+
+<p>There  is a one-to-one crrespondence between <strong>decision problems</strong> and <strong>language</strong>.</p>
+
+<p>Integer factorization problem can convert to its decision version. Vise versa. OK, we finally get to the place of <strong>Turing machine</strong>.</p>
+
+<p>Are all languages computable/decidable? How can you prove a language is undecidable? how do ew measure the complexity of algorithms deciding languages? How do we classify languages according to the resources needed to decide them? P ?= NP</p>
+
+<h3 id='summary'>Summary</h3>
+
+<p>We human-beings use strings to communicate. And encoding just represent the <strong>strings</strong> in another form, for the convenience of mathematical &quot;<strong>computer</strong>&quot; (it is just a model/representation/concept instead of the exact computer we use today). The key part, in my opinion, is that</p>
+
+<ul>
+<li><strong>language is a subset of alphabet</strong>.</li>
+
+<li>A computer/algorithm <strong>solves</strong> function problem <strong>f</strong> if its input/output behavior corresponds to <strong>f</strong> and integer factorization problem can convert to decision version.</li>
+</ul>
+
+<p>Now we can feed any problem to a customed computer(or say, function), encoding input and output(if needed), and get the result. We are able to know if a problem is solvable since we could convert any problem to its decision version(id.est. the output is &quot;<strong>true</strong>&quot; or &quot;<strong>false</strong>&quot;.) Up to this moment, this course give me a sence of the divergence of <strong>Turing Machine</strong>.</p>
+
+<p>For the <strong>language</strong> part, I don&#8217;t know why he brought them here. I myself try to learn from those videos after a fail attempt to understand the parser part of the book <em>Craftering Interpreters</em> and these have some underline correspondece(I mean I would have no idea why the <strong>language</strong> part is related to computation if I wasn&#8217;t have the preknowledge/confusion).</p>
+
+<p>And by defining a mapping between the alphabet and {0,1}, we could create any language.</p>
+
+<h2 id='deterministic_finite_automata_part_1'>Deterministic Finite Automata Part 1</h2>
+
+<p>We gonna talk about <strong>how</strong> to get the output from the input.</p>
+
+<p><strong>Terminology</strong>:</p>
+
+<ul>
+<li><strong>Computational Model</strong>: Allowed rulses for <strong>information processing</strong>.</li>
+
+<li><strong>Machine = Computer = Program = Algorithm</strong>: An instantiation of the computational model.(a specific sequence of information processing)</li>
+</ul>
+
+<p><strong>Assumptions</strong>:</p>
+
+<ol type="1">
+<li>No &quot;universal machines&quot;(we haven&#8217;t have such concept yet)</li>
+
+<li>We only care about <strong>decision problems</strong>.</li>
+</ol>
+
+<h5 id='deterministic_finite_automata'>Deterministic Finite Automata</h5>
+
+<p>A restricted model of computation:</p>
+
+<ul>
+<li>limited memory</li>
+
+<li>reads input from left to right, and <strong>accepts</strong> or <strong>rejects</strong></li>
+</ul>

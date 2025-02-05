@@ -1,0 +1,12 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Basic&#8217; date = 2024-03-31T10:14:18+08:00 draft = true +++</p>
+
+<h5 id='./_目录'>./ 目录</h5>
+
+<p>在操作系统中，当前工作目录（CWD）是指从哪个文件夹中启动了程序。它并不一定是二进制文件所在的目录，而是运行该二进制文件的shell或命令行界面的当前目录。</p>
+
+<p>当您在命令行中执行一个命令时，该命令会在当前工作目录中运行。这意味着，如果您的二进制文件位于<code>/project/bin/yourapp</code>，但您的命令行当前所在的目录是<code>/project</code>，并且在这个目录下运行<code>./bin/yourapp</code>，那么程序的当前工作目录依然是<code>/project</code>。因此，程序中的<code>./</code>将会解析为<code>/project</code>。</p>
+
+<p>这就是为什么在您的例子中，尽管二进制文件位于<code>/bin</code>目录，<code>./tls/server.crt</code>和<code>./tls/server.key</code>实际上是指向<code>/project/tls/</code>目录的原因。</p>
+
+<p>简言之，<code>./</code>是相对于运行程序的命令行所处的目录，而不是二进制文件所在的目录。这个行为在大多数操作系统中是一致的，包括Linux、macOS和Windows。</p>

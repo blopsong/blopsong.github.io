@@ -1,0 +1,46 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;TCP<em>in</em>Rust&#8217; date = 2024-10-03T14:31:59+08:00 draft = true +++</p>
+
+<p><a href='https://www.man7.org/linux/man-pages/man8/setcap.8.html'>setcap</a> <a href='https://www.man7.org/linux/man-pages/man7/capabilities.7.html'>capabilities</a> I wonder how does Linux achieve this though.</p>
+
+<pre><code class="language-rust">    eprintln!(&quot;{:x?}&quot;,&amp;buf[..3]);</code></pre>
+
+<p><a href='https://stackoverflow.com/a/38157410'>Explain about the {:?}</a></p>
+
+<pre><code class="language-fish">    sudo ip addr add 192.168.0.1/24 dev tun0     
+    sudo ip link set up dev tun0</code></pre>
+
+<p>I want to know what are these two commands doing.<br />Here are some examples on the man page:</p>
+
+<pre><code>ip addr  
+# Shows addresses assigned to all network interfaces.</code></pre>
+
+<pre><code>ip neigh  
+# Shows the current neighbour table in kernel.</code></pre>
+
+<pre><code>ip link set x up  
+# Bring up interface x.</code></pre>
+
+<pre><code>ip link set x down  
+# Bring down interface x.</code></pre>
+
+<pre><code>ip route  
+# Show table routes.</code></pre>
+
+<p>I have met a <code>$!</code> inside a shell script, here are the explanation from claude:</p>
+
+<blockquote>
+<p>The $! is a special variable in shell scripting that contains the process ID (PID) of the last background command executed.</p>
+</blockquote>
+
+<p>I got a new learn command, <code>trap</code>.</p>
+
+<pre><code>trap - perform an action when the shell receives a signal  
+Usage:  
+trap [OPTIONS] [[ARG] REASON ... ]</code></pre>
+
+<p><a href='https://www.youtube.com/watch?v=bzja9fQWzdA&amp;t=16217s'>time: 44:40</a> One thing that confused me is that why is the packet on the link layer(layer 2nd) has 4 bytes more than the packet on the IP layer(layer 3). I thought the size of the packet is just going to be more and more large as the layer number increases. Wait, if we think about the process of the encapsulation and decapsulation, it actually makes sence. Maybe I am wrong for my previous thought.</p>
+
+<p>It seems like the IPv4 encapsulation doesn&#8217;t add any payload, um?</p>
+
+<p>What is <code>!#</code> and <code>#</code> though?  And what about trait <code>Eq</code> and trait <code>PartialEq</code>?</p>

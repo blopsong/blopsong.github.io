@@ -1,0 +1,113 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;How to use OhMyPosh to decorate your terminal&#8217; date = 2023-12-30T19:43:57+08:00 author = &quot;Aclius&quot; draft = false +++</p>
+
+<h5 id='1._powershell'>1. Powershell</h5>
+
+<p>At the beginning, I was trying to implement it on WindowsPowershell and result in a mess which I&#8217;ve forgot(For more information about the differences between them, please check out this <a href='https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3'>page</a>. Then I strictly follow steps on the official <a href='https://ohmyposh.dev/docs/'>document</a> while at  the same time still encounter some problems. Here I will show the proper way I&#8217;ve tried on to complete this task.</p>
+
+<h6 id='(1)_install_ohmyposh'>(1) Install OhMyPosh</h6>
+
+<p>Open Powershell and execute the command:</p>
+
+<pre><code class="language-powershell">winget install JanDeDobbeleer.OhMyPosh -s winget</code></pre>
+
+<h6 id='(2)_install_a_font'>(2) Install a font</h6>
+
+<p>The way official document recommands didn&#8217;t apply to me, when I execute the  command as adminstrator:</p>
+
+<pre><code class="language-powershell">oh-my-posh font install</code></pre>
+
+<p>And then select a ramdon one from the list:</p>
+
+<pre><code class="language-powershell">PS C: \Windowssystem32&gt; oh-my-posh font install
+Select font
+Oxproto
+3270
+Agave
+Anonymouspro
+〉 Arimo
+AurulentSansMono
+BigBlueTerminal
+BitstreamVerasansMono</code></pre>
+
+<p>Use default shortcut <code>Ctrl + Shift + ,</code> to open the <code>setting.json</code> file and add the name of the font I&#8217;ve just downloaded as the document says. After that, the error  immediately occured as:</p>
+
+<blockquote>
+<p><strong>Warning</strong></p>
+
+<p>Unable to find the selected font &quot;MeslolLGL Nerd Fon&quot;.</p>
+
+<p>&quot;Consolas&quot; has been selected instead.</p>
+
+<p>Please either install the missing font or choose another one.</p>
+</blockquote>
+
+<p>After trying other different fonts I still got the same result, so I try to <a href='https://www.nerdfonts.com/font-downloads'>download</a> and manually install a font and finally succeed(remember to add it in the &#8217;setting.json&#8217; as before after install your font).</p>
+
+<h6 id='(3)_prompt'>(3) Prompt</h6>
+
+<p>Use this command to create a profile for your Powershell if you haven&#8217;t got one</p>
+
+<pre><code class="language-powershell">New-Item -Path $PROFILE -Type File -Force</code></pre>
+
+<p>Use this command to open the profile you just create with notepad.exe</p>
+
+<pre><code class="language-powershell">notepad $PROFILE</code></pre>
+
+<p>Then I add the following line to my profile as the document said(it didn&#8217;t apply to me)</p>
+
+<pre><code>oh-my-posh init pwsh | Invoke-Expression</code></pre>
+
+<p>After that, some errors occured(sorry about forgetting them, but adding the OhMyPosh.exe to my Anti-Virus software&#8217;s whitelist didn&#8217;t help any). For some good hours I finally found the proper solution on a platform(Thank you, bilibili comments) that I was almost desperate to look for. And the problem is that I got some unicode characters in my OhMyPosh.exe path(if you&#8217;re curious, they are&quot;鑽ｈ€&quot;). The solution is in the <a href='https://ohmyposh.dev/docs/faq'>OhMyPosh FAQ page</a>. Just simply change the line I&#8217;ve put in profile to the following one.</p>
+
+<pre><code>$previousOutputEncoding = [Console]::OutputEncoding
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+try {
+    oh-my-posh init pwsh --config ~/custom.omp.json | Invoke-Expression
+} finally {
+    [Console]::OutputEncoding = $previousOutputEncoding
+}</code></pre>
+
+<p>Then dot sourcing the my profile script</p>
+
+<pre><code>. $PROFILE</code></pre>
+
+<h6 id='(4)_costomize'>(4) Costomize</h6>
+
+<p>Check all the <a href='https://ohmyposh.dev/docs/themes'>themes</a> available, select one and then edit the <strong>PROFILE</strong>, replace the <code>~/custom.omp.json </code>with <code>$env:POSH_THEMES_PATH/theme_name.omp.json</code>. For example, <code>env:POSH_THEMES_PATH/aliens.omp.json</code>. Fianlly dot sourcing the <strong>PROFILE</strong> like before(If you donot witness the effect, just restart your Powershell).</p>
+
+<h5 id='2._wsl2'>2. WSL2</h5>
+
+<h6 id='(1)_homebrew_(failed)'>(1) Homebrew (failed)</h6>
+
+<p>I tried to install the Homebrew(check out the official <a href='https://brew.sh/'>page</a> first but it kept telling me that there&#8217;s some wrong with my 7890 port(I&#8217;m using a proxy to achieve a relatively fast speed). Then I spend a good hours to find out ways to install Homebrew on my WSL2 and finally gave up. By the way, I&#8217;ve got some <a href='https://blog.csdn.net/hn_tzy/article/details/88903642'>methods</a> to boast up the downloading speed on github(worked for me though).</p>
+
+<h6 id='(2)_download_ohmyposh_binary_file_in_github'>(2) Download OhMyPosh binary file in github</h6>
+
+<p><a href='https://blog.csdn.net/hys__handsome/article/details/125697108'>Reference</a>. Due to the mysterious awfle connection between my WSL2 and github, I went to the github release <a href='https://github.com/JanDeDobbeleer/oh-my-posh/releases'>page</a> and downloaded the <a href='https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v19.3.0/posh-linux-arm64'>posh-linux-arm64</a> and then moved it to &#8217;/usr/local/bin/oh-my-posh&#8217; and used <code>chmod + x</code> to make it  executable(Assuming you&#8217;ve known some basic Linux commands).</p>
+
+<h6 id='(3)_customize'>(3) Customize</h6>
+
+<p>create a folder to store your theme on your current user&#8217;s path</p>
+
+<pre><code class="language-bash">mkdir ~/.poshthemes</code></pre>
+
+<p>for the same reason above I have to download the theme.zip file manually(in the same page also and if you couldn&#8217;t find it, I&#8217;ve got <a href='https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v19.3.0/themes.zip'>it</a> for you), and then <code>unzip</code> it in the folder I just created.</p>
+
+<pre><code class="language-bash">unzip ~/.poshthemes/theme.zip -d ~/.poshthemes</code></pre>
+
+<p>make them all readable and writtable</p>
+
+<pre><code class="language-bash">chmod u+rw ~/.poshthemes/*.omp.*</code></pre>
+
+<p>then you could delete the zip file if you like</p>
+
+<pre><code class="language-bash">rm ~/.poshthemes/theme.zip</code></pre>
+
+<p>To enable OhMyPosh auto-start, add the following line at the end of &#8217;/etc/profile&#8217;. (remember to replace the &#8217;theme_name&#8217; with a real one)</p>
+
+<pre><code>eval &quot;$(oh-my-posh --init --shell bash --config ~/.poshthemes/theme_name.omp.json)&quot;</code></pre>
+
+<h5 id='postscripse'>Postscripse</h5>
+
+<p>All the themes seem too garish for me and just change back to default after all the working. Just for fun. Limited to the author&#8217;s knowledge, there might be some wrong stuff on blog which you might need to corret them by yourself.</p>

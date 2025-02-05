@@ -1,0 +1,66 @@
+<meta charset="UTF-8">
+<p>+++ title = &#8217;Install g4f in Debian12&#8217; date = 2024-01-31T09:37:19+08:00 draft = false +++</p>
+
+<h4 id='set_up_python_environment_in_debian_12/11/10'>Set up Python environment in Debian 12/11/10</h4>
+
+<p><a href='https://tecadmin.net/how-to-install-python-3-11-on-debian/'>source</a></p>
+
+<p>Update packages</p>
+
+<pre><code class="language-bash">sudo apt update &amp;&amp; sudo apt upgrade </code></pre>
+
+<p>Install the required packages for the compilation of Python source code</p>
+
+<pre><code class="language-bash">sudo apt install wget build-essential libncursesw5-dev libssl-dev \
+     libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev  </code></pre>
+
+<p>Download python 3.11</p>
+
+<pre><code class="language-bash">wget https://www.python.org/ftp/python/3.11.3/Python-3.11.7.tgz </code></pre>
+
+<p>Extract archive</p>
+
+<pre><code class="language-bash">tar xzf Python-3.11.7.tgz </code></pre>
+
+<p>Prepare for the installation</p>
+
+<pre><code class="language-bash">cd Python-3.11.7 
+./configure --enable-optimizations </code></pre>
+
+<p>Build and install</p>
+
+<pre><code class="language-bash">make -j 4
+make altinstall </code></pre>
+
+<h4 id='install_g4f'>Install g4f</h4>
+
+<p><a href='https://github.com/xtekky/gpt4free?tab=readme-ov-file#or'>source</a></p>
+
+<p>Create a directory and <code>cd</code> in it. Clone the github repository</p>
+
+<pre><code class="language-bash">git clone https://github.com/xtekky/gpt4free.git</code></pre>
+
+<p>Navigate to the project directory</p>
+
+<pre><code class="language-bash">cd gpt4free</code></pre>
+
+<p>(Recommended) Create a Python virtual environment: You can follow the <a href='https://docs.python.org/3/tutorial/venv.html'>Python official documentation</a> for virtual environments.</p>
+
+<pre><code class="language-bash">python3 -m venv venv_name</code></pre>
+
+<p>Activate the virtual environment</p>
+
+<pre><code class="language-bash">source venv/bin/activate</code></pre>
+
+<p>Install all used Python packages from <code>requirements.txt</code></p>
+
+<pre><code class="language-bash">pip install -r requirements.txt</code></pre>
+
+<p>Create a example.py and paste the following</p>
+
+<pre><code class="language-python">from g4f.gui import run_gui
+run_gui()</code></pre>
+
+<p>Run it</p>
+
+<pre><code class="language-bash">python example.py</code></pre>
